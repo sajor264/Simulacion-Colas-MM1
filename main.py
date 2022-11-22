@@ -1,5 +1,9 @@
+import numpy as np
+from Event import Event
+
 attentionRate = {}
 transMatrix = []
+queues = {}
 
 def processData(fileName):
     lines = []
@@ -13,8 +17,9 @@ def processData(fileName):
     arrivalRate = float(lines.pop())
     queueQuantity = int(lines.pop())
     # Le asignamos la tasa de atencion a cada cola
-    for queue in range(queueQuantity):
+    for queue in range(1, queueQuantity + 1):
         attentionRate[queue] = float(lines.pop())
+        queues[queue] = []
     # Creamos la Matriz
     for line in lines:
         tempList = []
@@ -23,8 +28,46 @@ def processData(fileName):
         transMatrix.insert(0, tempList)
     return arrivalRate, queueQuantity
 
+def getTasa(var):
+    return -np.log(np.random.rand())/var
+
+def entryProb(probList):
+    randNumber = np.random.rand()
+    current = 0
+    selectedProb = 0
+    index = 0
+    for prob in probList:
+        current += prob
+        if randNumber <= current:
+            return index
+        index += 1
+
+def getNextOnQueue(queue):
+    selected = queue[0]
+    for event in queue:
+        if event.getExecTime() <= selected.getExecTime():
+            selected = event
+    return selected
+
+def adjustQueueTime(queue, time):
+    for event in queue:
+        event.addExecTime(time)
+
+def getL():
+    total = 0
+    for queue in queues:
+        total += len(queues[queue])
+    return total
+
+def getLq():
+    dic = {}
+    for queue in queues:
+        dic[queue] = len(queues[queue])
+    return dic
 
 if __name__ == "__main__":
+    np.random.seed(0)
+
     # Inputs
     fileName = str(input("Ingrese el nombre del archivo: "))
     exTime = int(input("Cantidad de tiempo minimo de ejecucion: "))
@@ -32,7 +75,33 @@ if __name__ == "__main__":
     # Procesa la informacion del txt y la asigna a las variables
     arrivalRate, queueQuantity = processData(fileName)
 
-    # print(arrivalRate)
-    # print(queueQuantity)
-    # print(attentionRate)
-    # print(transMatrix)
+    # Se crea y se colocan los eventos en las colas
+    actualTime = 0
+    while actualTime <= exTime:
+        event = Event()
+        actualTime += getTasa(arrivalRate)
+        event.setExecTime(actualTime)
+        queue = entryProb(transMatrix[0])
+        queues[queue].append(event)
+    
+    # Se simulan las colas
+    executed = True
+    while executed:
+        executed = False
+        for queue in queues:
+            event = getNextOnQueue(queues[queue])
+            if event.getExecTime() <= exTime:
+                executed = True
+                queues[queue].remove(event)
+                nextQueue = entryProb(transMatrix[queue])
+                if nextQueue != 0:
+                    time = getTasa(attentionRate[queue])
+                    event.addExecTime(time)
+                    queues[nextQueue].append(event)
+                    adjustQueueTime(queues[queue], time)
+    # Obtenemos L y Lq
+    L = getL()
+    Lq = getLq()
+
+    print("L: " + str(L))
+    print("Lq: " + str(Lq))
