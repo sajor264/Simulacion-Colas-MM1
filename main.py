@@ -52,6 +52,7 @@ def getNextOnQueue(queue):
 def adjustQueueTime(queue, time):
     for event in queue:
         event.addExecTime(time)
+        event.addWTime(time)
 
 def getL():
     total = 0
@@ -64,6 +65,13 @@ def getLq():
     for queue in queues:
         dic[queue] = len(queues[queue])
     return dic
+
+def getW():
+    total = 0
+    for queue in queues:
+        for event in queues[queue]:
+            total += event.getW()
+    return total
 
 if __name__ == "__main__":
     np.random.seed(0)
@@ -102,6 +110,8 @@ if __name__ == "__main__":
     # Obtenemos L y Lq
     L = getL()
     Lq = getLq()
+    W = getW()
 
     print("L: " + str(L))
     print("Lq: " + str(Lq))
+    print("W: " + str(W))

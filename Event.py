@@ -32,3 +32,8 @@ class Event:
         tempExecTime = self.getExecTime()
         tempExecTime += time
         self.setExecTime(tempExecTime)
+
+    def addWTime(self, time):
+        tempW = self.getW()
+        tempW += time
+        self.setW(tempW)
