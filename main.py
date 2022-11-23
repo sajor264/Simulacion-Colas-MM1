@@ -49,10 +49,12 @@ def getNextOnQueue(queue):
             selected = event
     return selected
 
-def adjustQueueTime(queue, time):
+def adjustQueueTime(queue, time, pos):
     for event in queue:
         event.addExecTime(time)
         event.addWTime(time)
+        event.addWqTime(time, pos)
+
 
 def getL():
     total = 0
@@ -68,10 +70,23 @@ def getLq():
 
 def getW():
     total = 0
+    cont = 0
     for queue in queues:
         for event in queues[queue]:
             total += event.getW()
-    return total
+            cont += 1
+    return total/cont
+
+def getWq():
+    Wq = [0 for i in range(queueQuantity)]
+    for queue in queues:
+        total = 0
+        cont = 0
+        for event in queues[queue]:
+            total += event.getW()
+            cont += 1
+        Wq[queue - 1] = total/cont
+    return Wq
 
 if __name__ == "__main__":
     np.random.seed(0)
@@ -88,7 +103,9 @@ if __name__ == "__main__":
     while actualTime <= exTime:
         event = Event()
         actualTime += getTasa(arrivalRate)
+        queueW = [0 for i in range(queueQuantity)]
         event.setExecTime(actualTime)
+        event.setWq(queueW)
         queue = entryProb(transMatrix[0])
         queues[queue].append(event)
     
@@ -106,12 +123,14 @@ if __name__ == "__main__":
                     time = getTasa(attentionRate[queue])
                     event.addExecTime(time)
                     queues[nextQueue].append(event)
-                    adjustQueueTime(queues[queue], time)
+                    adjustQueueTime(queues[queue], time, queue - 1)
     # Obtenemos L y Lq
     L = getL()
     Lq = getLq()
     W = getW()
+    Wq = getWq()
 
     print("L: " + str(L))
     print("Lq: " + str(Lq))
     print("W: " + str(W))
+    print("Wq: " + str(Wq))

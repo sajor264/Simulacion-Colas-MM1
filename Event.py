@@ -37,3 +37,8 @@ class Event:
         tempW = self.getW()
         tempW += time
         self.setW(tempW)
+
+    def addWqTime(self, time, pos):
+        tempWq = self.getWq()
+        tempWq[pos] += time
+        self.setWq(tempWq)
