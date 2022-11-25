@@ -88,6 +88,15 @@ def getWq():
         Wq[queue - 1] = total/cont
     return Wq
 
+def getp():
+    p = [0 for i in range(queueQuantity)]
+    for queue in queues:
+        p[queue - 1] = arrivalRate/(1*attentionRate[queue])
+    return p
+
+
+
+
 if __name__ == "__main__":
     np.random.seed(0)
 
@@ -129,8 +138,10 @@ if __name__ == "__main__":
     Lq = getLq()
     W = getW()
     Wq = getWq()
+    p = getp()
 
     print("L: " + str(L))
     print("Lq: " + str(Lq))
     print("W: " + str(W))
     print("Wq: " + str(Wq))
+    print("p: " + str(p))
